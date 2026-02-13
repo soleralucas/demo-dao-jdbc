@@ -147,7 +147,7 @@ PreparedStatement st = null;
 			if(rs.next()) {
 				
 				Department dep = instantiateDepartment(rs);
-				
+	
 				Seller obj = instantiateSeller(rs, dep);
 				
 				return obj;
