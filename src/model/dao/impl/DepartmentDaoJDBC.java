@@ -4,11 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import db.DB;
 import db.DbException;
+import db.DbIntegrityException;
 import model.dao.DepartmentDao;
 import model.entities.Department;
 
@@ -23,19 +25,97 @@ public class DepartmentDaoJDBC implements  DepartmentDao {
 
 	@Override
 	public void insert(Department obj) {
-		// TODO Auto-generated method stub
+		
+		PreparedStatement st = null;
+		
+		try {
+			st = conn.prepareStatement(
+					
+				"Insert into department (Name) "
+				+ "Values (?)", Statement.RETURN_GENERATED_KEYS);
+			
+			st.setString(1, obj.getName());
+			
+			int rowsAffected = st.executeUpdate();
+			
+			if(rowsAffected > 0) {
+				
+				ResultSet rs = st.getGeneratedKeys();
+				
+				if(rs.next()) {
+					int id = rs.getInt(1);
+					obj.setId(id);
+				}
+				DB.closeResultSet(rs);
+			}
+			else {
+				throw new DbException("Unexpected error! No rows affected!");
+			}
+					
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
 		
 	}
+	
+	
+	
+	
+	
+	
 
 	@Override
 	public void update(Department obj) {
-		// TODO Auto-generated method stub
+		
+		PreparedStatement st = null;
+		
+		try {
+			
+			st = conn.prepareStatement("UPDATE department set name = ? WHERE Id = ?");
+			
+			
+			st.setString(1, obj.getName());
+			st.setInt(2, obj.getId());
+			
+			st.executeUpdate();
+			
+			
+		}
+		catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+			
+		}
+		
 		
 	}
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		
+		PreparedStatement st = null;
+		
+		try {
+			
+			st = conn.prepareStatement("DELETE FROM department WHERE Id = ?");	//DELETE DE
+			st.setInt(1, id);
+			st.executeUpdate();
+		
+		}
+		catch(SQLException e) {
+			throw new DbIntegrityException(e.getMessage());//trata exceção em casos como excluir um departamento com vendedores
+		}
+		finally {
+			DB.closeStatement(st);
+		}
+		
+		
 		
 	}
 
@@ -65,6 +145,10 @@ public class DepartmentDaoJDBC implements  DepartmentDao {
 			DB.closeResultSet(rs);
 		}
 	}
+	
+	
+	
+	
 
 	@Override
 	public List<Department> findAll() {
@@ -87,10 +171,19 @@ public class DepartmentDaoJDBC implements  DepartmentDao {
 		}catch(SQLException e) {
 			throw new DbException(e.getMessage());
 		}
+		finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
 		
 		
 		
 	}
+	
+	
+	
+	
+	
 
 	private Department instantiateDepartment(ResultSet rs) throws SQLException {
 		Department dep = new Department();
