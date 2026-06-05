@@ -1,7 +1,7 @@
 
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/devsuperior/sds1-wmazoni/blob/master/LICENSE) 
 
-## Sobre o projeto
+# Sobre o projeto
 
 Demo DAO JDBC é uma aplicação Java desenvolvida com o objetivo de praticar o acesso a banco de dados utilizando JDBC e padrões de projeto.
 
